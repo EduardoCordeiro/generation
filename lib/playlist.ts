@@ -2,6 +2,13 @@ import type { SpotifyItem } from "./spotify";
 
 export type Candidate = { name: string; artist: string; image?: string };
 
+export type SeedArtistSource = {
+  name: string;
+  subtitle: string;
+  type: "artist" | "album" | "track";
+  artists?: string[];
+};
+
 export type PlaylistTrack = {
   uri: string;
   name: string;
@@ -88,6 +95,22 @@ export function collectArtistNames(items: SpotifyItem[]) {
     for (const artist of item.artists || []) artists.add(artist.name);
   }
   return [...artists];
+}
+
+export function collectSeedArtistNames(seeds: SeedArtistSource[]) {
+  const artists = new Map<string, string>();
+  for (const seed of seeds) {
+    const names = seed.type === "artist"
+      ? [seed.name]
+      : seed.artists?.length
+        ? seed.artists
+        : seed.subtitle.split(" · ")[0].split(", ");
+    for (const name of names) {
+      const normalized = normalizeDiscoveryArtist(name);
+      if (normalized) artists.set(normalizeArtist(normalized), normalized);
+    }
+  }
+  return [...artists.values()];
 }
 
 export function uniqueResolvedTracks(

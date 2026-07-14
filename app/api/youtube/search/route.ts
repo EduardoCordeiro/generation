@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
       uri: `youtube:video:${item.id.videoId}`,
       name: item.snippet.title,
       subtitle: `${item.snippet.channelTitle} · YouTube`,
+      artists: [item.snippet.channelTitle],
       type: "track" as const,
       image: item.snippet.thumbnails?.medium?.url || item.snippet.thumbnails?.default?.url,
     })) });

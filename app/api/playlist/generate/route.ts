@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
 import { asSeed, spotify, SpotifyApiError, type SpotifyItem } from "@/lib/spotify";
 import { asYouTubeTrack, youtube, YouTubeApiError, type YouTubeVideoMatch } from "@/lib/youtube";
-import { collectArtistNames, excludeCandidatesByArtist, normalizeDiscoveryArtist, normalizeDiscoveryTrack, parsePlaylistSize, selectDiverseTracks, toPlaylistTracks, uniqueCandidates, uniquePrimaryArtistCount, uniqueResolvedTracks } from "@/lib/playlist";
+import { collectArtistNames, collectSeedArtistNames, excludeCandidatesByArtist, normalizeDiscoveryArtist, normalizeDiscoveryTrack, parsePlaylistSize, selectDiverseTracks, toPlaylistTracks, uniqueCandidates, uniquePrimaryArtistCount, uniqueResolvedTracks } from "@/lib/playlist";
 import { isMusicProvider, type MusicProvider as Provider } from "@/lib/providers";
 
 type Seed = ReturnType<typeof asSeed>;
@@ -180,7 +180,7 @@ function candidateItem(candidate: { artist: string; name: string; image?: string
 }
 
 function artistFromSeed(seed: Seed) {
-  return normalizeDiscoveryArtist(seed.type === "artist" ? seed.name : seed.subtitle.split(" · ")[0]);
+  return collectSeedArtistNames([seed])[0] || "";
 }
 
 async function discoverFromSeed(seed: Seed, trackLimit: number, artistLimit: number) {
@@ -224,7 +224,7 @@ export async function POST(request: NextRequest) {
     const requiredArtists = Math.ceil(size * 2 / 3);
     const trackLimitPerSeed = Math.max(20, Math.ceil(size * 3 / seeds.length));
     const artistLimitPerSeed = Math.max(6, Math.ceil(requiredArtists / seeds.length) + 4);
-    const seedArtists = seeds.flatMap((seed) => artistFromSeed(seed).split(", "));
+    const seedArtists = collectSeedArtistNames(seeds);
     log(requestId, "request.accepted", { provider, seedCount: seeds.length, requestedSize: size, requiredArtists });
 
     const [candidates, likedLibrary] = await Promise.all([

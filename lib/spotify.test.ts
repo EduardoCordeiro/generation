@@ -17,6 +17,7 @@ describe("Spotify seed mapping", () => {
       name: "Björk",
       type: "artist",
       image: "artist.jpg",
+      artists: ["Björk"],
       subtitle: "Artist",
     });
   });
@@ -31,7 +32,11 @@ describe("Spotify seed mapping", () => {
       images: [{ url: "album.jpg" }],
     };
 
-    expect(asSeed(album)).toMatchObject({ image: "album.jpg", subtitle: "Artist One, Artist Two · Album" });
+    expect(asSeed(album)).toMatchObject({
+      image: "album.jpg",
+      artists: ["Artist One", "Artist Two"],
+      subtitle: "Artist One, Artist Two · Album",
+    });
   });
 
   it("maps a track using its album name and artwork", () => {
@@ -44,11 +49,11 @@ describe("Spotify seed mapping", () => {
       album: { name: "Record", images: [{ url: "cover.jpg" }] },
     };
 
-    expect(asSeed(track)).toMatchObject({ image: "cover.jpg", subtitle: "Artist · Record" });
+    expect(asSeed(track)).toMatchObject({ image: "cover.jpg", artists: ["Artist"], subtitle: "Artist · Record" });
   });
 
   it("uses readable fallbacks for incomplete metadata", () => {
     const track: SpotifyItem = { id: "track-2", uri: "spotify:track:2", name: "Track", type: "track" };
-    expect(asSeed(track)).toMatchObject({ image: undefined, subtitle: "Unknown artist · Track" });
+    expect(asSeed(track)).toMatchObject({ image: undefined, artists: [], subtitle: "Unknown artist · Track" });
   });
 });

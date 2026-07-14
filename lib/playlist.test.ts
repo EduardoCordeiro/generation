@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { SpotifyItem } from "./spotify";
 import {
   collectArtistNames,
+  collectSeedArtistNames,
   excludeCandidatesByArtist,
   excludeSavedTracks,
   normalizeDiscoveryArtist,
@@ -167,6 +168,59 @@ describe("discovery seed normalization", () => {
     expect(normalizeDiscoveryTrack("Love &quot;Again&quot; [Lyrics Video]")).toBe('Love "Again"');
     expect(normalizeDiscoveryTrack("New Song (Official Visualizer)")).toBe("New Song");
     expect(normalizeDiscoveryArtist("  Artist &amp; Friend - Topic  ")).toBe("Artist & Friend");
+  });
+});
+
+describe("seed artist exclusions", () => {
+  it("collects the artist behind a song seed", () => {
+    expect(collectSeedArtistNames([{
+      name: "Jóga",
+      subtitle: "Björk · Homogenic",
+      type: "track",
+      artists: ["Björk"],
+    }])).toEqual(["Björk"]);
+  });
+
+  it("collects every credited artist behind album and song seeds", () => {
+    expect(collectSeedArtistNames([
+      { name: "Album", subtitle: "Display text · Album", type: "album", artists: ["Artist One", "Artist Two"] },
+      { name: "Song", subtitle: "Display text · Single", type: "track", artists: ["Artist Two", "Featured Artist"] },
+    ])).toEqual(["Artist One", "Artist Two", "Featured Artist"]);
+  });
+
+  it("does not split a structured artist name containing a comma", () => {
+    expect(collectSeedArtistNames([{
+      name: "September",
+      subtitle: "Earth, Wind & Fire · The Best of Earth, Wind & Fire, Vol. 1",
+      type: "track",
+      artists: ["Earth, Wind & Fire"],
+    }])).toEqual(["Earth, Wind & Fire"]);
+  });
+
+  it("falls back to legacy subtitle data and normalizes provider channel names", () => {
+    expect(collectSeedArtistNames([
+      { name: "Snooze", subtitle: "SZA - Topic · YouTube", type: "track" },
+      { name: "Solange", subtitle: "Artist", type: "artist" },
+    ])).toEqual(["SZA", "Solange"]);
+  });
+
+  it("removes every track by an artist inferred from a song seed", () => {
+    const seedArtists = collectSeedArtistNames([{
+      name: "Jóga",
+      subtitle: "Björk · Homogenic",
+      type: "track",
+      artists: ["Björk"],
+    }]);
+    const collaboration = track("spotify:track:collab", "Collab", "New Artist");
+    collaboration.artists = [{ name: "New Artist" }, { name: "Björk" }];
+
+    expect(selectDiverseTracks([
+      track("spotify:track:bjork", "Hidden Place", "Björk"),
+      collaboration,
+      track("spotify:track:new", "Discovery", "New Artist"),
+    ], 10, seedArtists)).toEqual([
+      expect.objectContaining({ uri: "spotify:track:new" }),
+    ]);
   });
 });
 

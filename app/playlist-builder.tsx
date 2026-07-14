@@ -4,15 +4,15 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { SiSpotify, SiYoutube } from "react-icons/si";
 import { providerName, providerPlaylistEndpoint, providerSearchEndpoint, type MusicProvider as Destination } from "@/lib/providers";
 
-type Seed = { id: string; uri: string; name: string; subtitle: string; type: "artist" | "album" | "track"; image?: string };
+type Seed = { id: string; uri: string; name: string; subtitle: string; type: "artist" | "album" | "track"; artists?: string[]; image?: string };
 type Result = Seed;
 type PlaylistTrack = { uri: string; name: string; artist: string; primaryArtist: string; album: string; image?: string };
 type CreatedPlaylist = { url: string; provider: Destination; skippedCount: number };
 
 const mockSeeds: Seed[] = [
-  { id: "a1", uri: "spotify:artist:5K4W6rqBFWDnAN6FQUkS6x", name: "Solange", subtitle: "Artist", type: "artist" },
-  { id: "t1", uri: "spotify:track:3A4FRzgve9BjfKbvVXRIFO", name: "Pink + White", subtitle: "Frank Ocean · Blonde", type: "track" },
-  { id: "a2", uri: "spotify:artist:4kI8Ie27vjvonwaB2ePh8T", name: "SZA", subtitle: "Artist", type: "artist" }
+  { id: "a1", uri: "spotify:artist:5K4W6rqBFWDnAN6FQUkS6x", name: "Solange", subtitle: "Artist", type: "artist", artists: ["Solange"] },
+  { id: "t1", uri: "spotify:track:3A4FRzgve9BjfKbvVXRIFO", name: "Pink + White", subtitle: "Frank Ocean · Blonde", type: "track", artists: ["Frank Ocean"] },
+  { id: "a2", uri: "spotify:artist:4kI8Ie27vjvonwaB2ePh8T", name: "SZA", subtitle: "Artist", type: "artist", artists: ["SZA"] }
 ];
 
 export function PlaylistBuilder() {
