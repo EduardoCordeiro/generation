@@ -1,0 +1,26 @@
+{
+  "name": "mood-mix",
+  "private": true,
+  "scripts": {
+    "predev": "npm test",
+    "dev": "next dev",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check": "npm test && next build",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "^16.2.10",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.10.0",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "typescript": "5.9.3",
+    "vitest": "^4.1.10"
+  }
+}
