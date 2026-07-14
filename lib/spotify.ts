@@ -37,6 +37,6 @@ export async function spotify<T>(path: string, init: RequestInit = {}): Promise<
 
 export function asSeed(item: SpotifyItem) {
   const image = item.type === "artist" ? item.images?.[0]?.url : item.type === "album" ? item.images?.[0]?.url : item.album?.images?.[0]?.url;
-  const artist = item.artists?.map((artist) => artist.name).join(", ");
+  const artist = item.artists?.map((artist) => artist.name).join(", ") || "Unknown artist";
   return { id: item.id, uri: item.uri, name: item.name, type: item.type, image, subtitle: item.type === "artist" ? "Artist" : item.type === "album" ? `${artist} · Album` : `${artist} · ${item.album?.name || "Track"}` };
 }

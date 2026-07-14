@@ -33,6 +33,7 @@ function decodeMusicText(value: string) {
 
 export function normalizeDiscoveryArtist(value: string) {
   return decodeMusicText(value)
+    .trim()
     .replace(/\s+-\s+Topic$/i, "")
     .replace(/VEVO$/i, "")
     .trim();

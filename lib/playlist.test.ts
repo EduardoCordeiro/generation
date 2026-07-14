@@ -40,6 +40,15 @@ describe("uniqueCandidates", () => {
     const candidates = Array.from({ length: 45 }, (_, index) => ({ artist: "Artist", name: `Track ${index}` }));
     expect(uniqueCandidates(candidates)).toHaveLength(40);
   });
+
+  it("keeps artwork from the first duplicate candidate", () => {
+    const candidates = [
+      { artist: "Björk", name: "Jóga", image: "first.jpg" },
+      { artist: "björk", name: "jóga", image: "second.jpg" },
+    ];
+
+    expect(uniqueCandidates(candidates)).toEqual([candidates[0]]);
+  });
 });
 
 describe("liked-song artist exclusions", () => {
@@ -62,6 +71,15 @@ describe("liked-song artist exclusions", () => {
 
     expect(excludeCandidatesByArtist(candidates, [" björk "])).toEqual([candidates[1]]);
   });
+
+  it("does not exclude artists whose names only partially match", () => {
+    const candidates = [
+      { artist: "The Smile", name: "Friend of a Friend" },
+      { artist: "Smile", name: "Dream" },
+    ];
+
+    expect(excludeCandidatesByArtist(candidates, ["Smile"])).toEqual([candidates[0]]);
+  });
 });
 
 describe("uniqueResolvedTracks", () => {
@@ -78,6 +96,15 @@ describe("uniqueResolvedTracks", () => {
 
     expect(uniqueResolvedTracks([seed, undefined, discovery], [seed.uri])).toEqual([discovery]);
   });
+
+  it("deduplicates without mutating the resolved result objects", () => {
+    const first = track("youtube:video:same", "First");
+    const duplicate = track("youtube:video:same", "Duplicate");
+    const input = [first, duplicate];
+
+    expect(uniqueResolvedTracks(input, [])).toEqual([first]);
+    expect(input).toEqual([first, duplicate]);
+  });
 });
 
 describe("playlist filtering and presentation", () => {
@@ -93,6 +120,23 @@ describe("playlist filtering and presentation", () => {
     expect(playlist).toHaveLength(20);
     expect(new Set(playlist.map((item) => item.uri)).size).toBe(20);
     expect(playlist[0]).toMatchObject({ artist: "Artist", primaryArtist: "Artist", album: "Album", image: "medium" });
+  });
+
+  it("honors a custom playlist limit", () => {
+    const items = Array.from({ length: 12 }, (_, index) => track(`spotify:track:${index}`));
+    expect(toPlaylistTracks(items, 10)).toHaveLength(10);
+  });
+
+  it("formats incomplete catalog metadata safely", () => {
+    const item: SpotifyItem = { id: "bare", uri: "spotify:track:bare", name: "Bare", type: "track" };
+    expect(toPlaylistTracks([item])).toEqual([{
+      uri: item.uri,
+      name: "Bare",
+      artist: "Unknown artist",
+      primaryArtist: "Unknown artist",
+      album: "",
+      image: undefined,
+    }]);
   });
 });
 
@@ -117,6 +161,12 @@ describe("discovery seed normalization", () => {
   it("removes common YouTube decorations from track titles", () => {
     expect(normalizeDiscoveryTrack("SZA - Snooze (Official Video)", "SZA")).toBe("Snooze");
     expect(normalizeDiscoveryTrack("Pink &amp; White | Official Audio", "Frank Ocean")).toBe("Pink & White");
+  });
+
+  it("decodes common entities and removes lyric and visualizer labels", () => {
+    expect(normalizeDiscoveryTrack("Love &quot;Again&quot; [Lyrics Video]")).toBe('Love "Again"');
+    expect(normalizeDiscoveryTrack("New Song (Official Visualizer)")).toBe("New Song");
+    expect(normalizeDiscoveryArtist("  Artist &amp; Friend - Topic  ")).toBe("Artist & Friend");
   });
 });
 
@@ -145,6 +195,21 @@ describe("artist diversity", () => {
     ];
 
     expect(selectDiverseTracks(items, 10, ["seed artist"])).toEqual([items[1]]);
+  });
+
+  it("excludes a collaboration when any credited artist is a seed", () => {
+    const collaboration = track("spotify:track:collaboration", "Collaboration", "New Artist");
+    collaboration.artists = [{ name: "New Artist" }, { name: "Seed Artist" }];
+
+    expect(selectDiverseTracks([collaboration], 10, ["seed artist"])).toEqual([]);
+  });
+
+  it("counts primary artists case-insensitively", () => {
+    expect(uniquePrimaryArtistCount([
+      track("spotify:track:1", "One", "Björk"),
+      track("spotify:track:2", "Two", " björk "),
+      track("spotify:track:3", "Three", "FKA twigs"),
+    ])).toBe(2);
   });
 
   it("returns the available tracks when diversity is insufficient so the route can reject the mix", () => {
