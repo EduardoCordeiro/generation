@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./styles.css";
+import "./controls.css";
+import "./theme-dark.css";
 
 export const metadata: Metadata = {
   title: "Mood Mix",

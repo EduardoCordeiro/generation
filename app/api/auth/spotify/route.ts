@@ -7,7 +7,7 @@ export async function GET() {
   if (!clientId || !process.env.SPOTIFY_CLIENT_SECRET) return NextResponse.json({ error: "Missing SPOTIFY_CLIENT_ID or SPOTIFY_CLIENT_SECRET in .env.local." }, { status: 500 });
   const state = randomUUID();
   const url = new URL("https://accounts.spotify.com/authorize");
-  url.search = new URLSearchParams({ response_type: "code", client_id: clientId, redirect_uri: redirectUri, state, scope: "user-read-private playlist-modify-private playlist-modify-public user-library-read" }).toString();
+  url.search = new URLSearchParams({ response_type: "code", client_id: clientId, redirect_uri: redirectUri, state, scope: "user-read-private playlist-modify-private playlist-modify-public user-library-read", show_dialog: "true" }).toString();
   const response = NextResponse.redirect(url);
   response.cookies.set("spotify_oauth_state", state, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", maxAge: 600, path: "/" });
   return response;

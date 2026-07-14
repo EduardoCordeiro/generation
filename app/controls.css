@@ -1,0 +1,140 @@
+.length-control span {
+  display: block;
+  margin-bottom: 9px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.length-control select {
+  width: 100%;
+  height: 46px;
+  padding: 0 12px;
+  border: 1px solid #a8bbb2;
+  border-radius: 0;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+}
+
+.generate-row .length-control {
+  min-width: 130px;
+}
+
+.generate-row .length-control span {
+  margin-bottom: 5px;
+  font: 10px "DM Mono", monospace;
+  letter-spacing: 1.3px;
+  color: #698178;
+  text-transform: uppercase;
+}
+
+.provider-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 22px;
+  max-width: 500px;
+}
+
+.provider-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 48px;
+  padding: 8px 11px;
+  border: 1px solid #a8bbb2;
+  background: #fff;
+  color: var(--ink);
+  text-align: left;
+}
+
+.provider-button:hover,
+.provider-button:focus-visible {
+  border-color: var(--ink);
+  outline: none;
+}
+
+.provider-logo {
+  display: grid;
+  flex: 0 0 24px;
+  place-items: center;
+  font-size: 21px;
+}
+
+.provider-spotify .provider-logo {
+  color: #1db954;
+}
+
+.provider-youtube .provider-logo {
+  color: #ff0033;
+}
+
+.provider-button strong {
+  font-size: 12px;
+}
+
+.provider-button b {
+  margin-left: auto;
+  color: #3f7564;
+  font-size: 12px;
+}
+
+.playlist-success {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  max-width: 940px;
+  margin: 18px auto -46px;
+  padding: 17px 20px;
+  border: 1px solid var(--lime);
+  background: var(--surface, #fff);
+}
+
+.playlist-success strong,
+.playlist-success span {
+  display: block;
+}
+
+.playlist-success strong {
+  margin-bottom: 4px;
+  font-size: 13px;
+}
+
+.playlist-success div > span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.playlist-success a {
+  flex: 0 0 auto;
+  padding: 10px 14px;
+  border: 1px solid var(--lime);
+  background: var(--lime);
+  color: #111713;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.playlist-success a span {
+  display: inline;
+  margin-left: 7px;
+}
+
+@media (max-width: 650px) {
+  .provider-buttons {
+    grid-template-columns: 1fr;
+  }
+
+  .playlist-success {
+    align-items: stretch;
+    flex-direction: column;
+    margin: 18px 14px -35px;
+  }
+
+  .playlist-success a {
+    text-align: center;
+  }
+}

@@ -1,0 +1,161 @@
+:root {
+  color-scheme: dark;
+  --ink: #f0f4ed;
+  --lime: #dcff68;
+  --cream: #0b0f0e;
+  --peach: #b9674f;
+  --line: #33413c;
+  --muted: #91a19a;
+  --surface: #121816;
+  --surface-raised: #18201d;
+  --surface-hover: #202b27;
+}
+
+body {
+  background: var(--cream);
+}
+
+nav,
+footer {
+  border-color: var(--line);
+}
+
+.status i {
+  background: #75958a;
+}
+
+.workspace,
+.preview {
+  border-color: #53635d;
+  background: var(--surface);
+  box-shadow: 7px 7px 0 #26322e;
+}
+
+.preview {
+  box-shadow: none;
+}
+
+.label span,
+.eyebrow,
+.label,
+.tiny,
+footer,
+.generate-row .length-control span {
+  color: #8ca098;
+}
+
+.search-wrap input,
+.brief textarea,
+.length-control select,
+.destination-control select {
+  border-color: #465650;
+  background: #0e1311;
+  color: var(--ink);
+}
+
+.search-wrap input::placeholder,
+.brief textarea::placeholder {
+  color: #687770;
+}
+
+.search-wrap input:focus,
+.brief textarea:focus,
+.length-control select:focus {
+  border-color: var(--lime);
+  outline: none;
+}
+
+.results {
+  border-color: #53635d;
+  background: var(--surface-raised);
+  box-shadow: 4px 4px 0 #26322e;
+}
+
+.result {
+  border-color: var(--line);
+  background: var(--surface-raised);
+  color: var(--ink);
+}
+
+.result:hover {
+  background: var(--surface-hover);
+}
+
+.result-art,
+.result img {
+  background: #714b3e;
+}
+
+.empty-seeds button {
+  color: #a5bbb2;
+}
+
+.chip {
+  background: #26352f;
+}
+
+.rule,
+ol,
+li {
+  border-color: var(--line);
+}
+
+.generate-row {
+  background: #151d1a;
+}
+
+.generate {
+  border-color: var(--lime);
+  background: var(--lime);
+  color: #111713;
+  box-shadow: 3px 3px 0 #000;
+}
+
+.generate:hover {
+  box-shadow: 2px 2px 0 #000;
+}
+
+.generate:disabled {
+  border-color: #39443f;
+  background: #29322e;
+  color: #78867f;
+}
+
+.create {
+  border-color: var(--lime);
+  background: var(--lime);
+  color: #111713;
+}
+
+.provider-button {
+  border-color: #465650;
+  background: #111614;
+  color: var(--ink);
+}
+
+.provider-button:hover,
+.provider-button:focus-visible {
+  border-color: #81938b;
+  background: var(--surface-hover);
+}
+
+.provider-button b {
+  color: var(--lime);
+}
+
+.cover,
+li img {
+  background: #293530;
+}
+
+.remove {
+  color: #9aaba3;
+}
+
+.error {
+  color: #ff9e8c;
+}
+
+select {
+  color-scheme: dark;
+}
