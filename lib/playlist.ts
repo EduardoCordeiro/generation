@@ -1,4 +1,5 @@
 import type { SpotifyItem } from "./spotify";
+import { artistIdentity, displayArtistName, isExcludedArtist, uniqueArtistNames } from "./artists";
 
 export type Candidate = { name: string; artist: string; image?: string };
 
@@ -39,11 +40,7 @@ function decodeMusicText(value: string) {
 }
 
 export function normalizeDiscoveryArtist(value: string) {
-  return decodeMusicText(value)
-    .trim()
-    .replace(/\s+-\s+Topic$/i, "")
-    .replace(/VEVO$/i, "")
-    .trim();
+  return displayArtistName(decodeMusicText(value));
 }
 
 export function normalizeDiscoveryTrack(value: string, artist?: string) {
@@ -60,7 +57,7 @@ export function normalizeDiscoveryTrack(value: string, artist?: string) {
 }
 
 function normalizeArtist(name: string) {
-  return name.trim().toLocaleLowerCase();
+  return artistIdentity(name);
 }
 
 function primaryArtist(item: SpotifyItem) {
@@ -85,8 +82,8 @@ export function excludeCandidatesByArtist(
   candidates: Candidate[],
   excludedArtists: Iterable<string>,
 ) {
-  const excluded = new Set([...excludedArtists].map(normalizeArtist));
-  return candidates.filter((candidate) => !excluded.has(normalizeArtist(candidate.artist)));
+  const excluded = [...excludedArtists];
+  return candidates.filter((candidate) => !isExcludedArtist(candidate.artist, excluded));
 }
 
 export function collectArtistNames(items: SpotifyItem[]) {
@@ -98,7 +95,7 @@ export function collectArtistNames(items: SpotifyItem[]) {
 }
 
 export function collectSeedArtistNames(seeds: SeedArtistSource[]) {
-  const artists = new Map<string, string>();
+  const artists: string[] = [];
   for (const seed of seeds) {
     const names = seed.type === "artist"
       ? [seed.name]
@@ -107,10 +104,10 @@ export function collectSeedArtistNames(seeds: SeedArtistSource[]) {
         : seed.subtitle.split(" · ")[0].split(", ");
     for (const name of names) {
       const normalized = normalizeDiscoveryArtist(name);
-      if (normalized) artists.set(normalizeArtist(normalized), normalized);
+      if (normalized) artists.push(normalized);
     }
   }
-  return [...artists.values()];
+  return uniqueArtistNames(artists);
 }
 
 export function uniqueResolvedTracks(
@@ -136,13 +133,12 @@ export function selectDiverseTracks(
   size: number,
   seedArtists: Iterable<string>,
 ) {
-  const seeds = new Set([...seedArtists].map(normalizeArtist));
+  const seeds = [...seedArtists];
   const groups = new Map<string, SpotifyItem[]>();
 
   for (const item of items) {
-    const artists = item.artists?.map((artist) => normalizeArtist(artist.name)) || [];
     const primary = primaryArtist(item);
-    if (!primary || artists.some((artist) => seeds.has(artist))) continue;
+    if (!primary || item.artists?.some((artist) => isExcludedArtist(artist.name, seeds))) continue;
 
     const key = normalizeArtist(primary);
     const group = groups.get(key) || [];

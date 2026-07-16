@@ -15,9 +15,33 @@ body {
   background: var(--cream);
 }
 
+main {
+  display: flex;
+  min-height: 100vh;
+  min-height: 100svh;
+  flex-direction: column;
+}
+
+.workspace {
+  width: min(940px, calc(100% - 28px));
+  margin: 0 auto;
+}
+
 nav,
 footer {
   border-color: var(--line);
+}
+
+footer {
+  margin-top: auto;
+  padding: 12px 5.8vw;
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 1.2px;
+}
+
+footer span {
+  margin: 0 9px;
 }
 
 .status i {
@@ -158,4 +182,10 @@ li img {
 
 select {
   color-scheme: dark;
+}
+
+@media (max-width: 650px) {
+  footer {
+    padding: 11px 22px;
+  }
 }

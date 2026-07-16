@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "node:crypto";
+import { sealToken, sessionCookie, sessionDeadline } from "@/lib/session";
 
 export async function GET(request: NextRequest) {
   const requestId = randomUUID().slice(0, 8);
@@ -29,9 +30,11 @@ export async function GET(request: NextRequest) {
     console.error(`[youtube.auth.callback:${requestId}] token.exchange_failed`, { status: tokenResponse.status, error: problem?.error, description: problem?.error_description, redirectUri });
     return NextResponse.redirect(new URL(`/?youtube=failed&reference=${requestId}`, redirectUri));
   }
-  const token = await tokenResponse.json() as { access_token: string; expires_in: number };
-  const response = NextResponse.redirect(new URL("/?youtube=connected", redirectUri));
-  response.cookies.set("youtube_access_token", token.access_token, { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", maxAge: token.expires_in, path: "/" });
+  const token = await tokenResponse.json() as { access_token: string; refresh_token?: string; expires_in: number };
+  const response = NextResponse.redirect(new URL("/", redirectUri));
+  response.cookies.set("youtube_access_token", token.access_token, sessionCookie(token.expires_in));
+  if (token.refresh_token) response.cookies.set("youtube_refresh_token", sealToken(token.refresh_token), sessionCookie());
+  response.cookies.set("youtube_session_deadline", sessionDeadline(), sessionCookie());
   response.cookies.delete("youtube_oauth_state");
   console.info(`[youtube.auth.callback:${requestId}] authorization.complete`, { expiresIn: token.expires_in, redirectUri });
   return response;

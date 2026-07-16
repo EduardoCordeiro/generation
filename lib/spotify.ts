@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { remainingSessionSeconds, sealToken, sessionCookie, unsealToken } from "./session";
 
 const SPOTIFY_API = "https://api.spotify.com/v1";
 
@@ -17,9 +18,19 @@ export class SpotifyApiError extends Error {
 }
 
 export async function accessToken() {
-  const token = (await cookies()).get("spotify_access_token")?.value;
-  if (!token) throw new Error("Connect Spotify before continuing.");
-  return token;
+  const store = await cookies();
+  const token = store.get("spotify_access_token")?.value;
+  if (token) return token;
+  const refreshToken = unsealToken(store.get("spotify_refresh_token")?.value || "");
+  const remaining = remainingSessionSeconds(store.get("spotify_session_deadline")?.value);
+  if (!refreshToken || !remaining) throw new Error("Connect Spotify before continuing.");
+  const credentials = `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`;
+  const response = await fetch("https://accounts.spotify.com/api/token", { method: "POST", headers: { Authorization: `Basic ${Buffer.from(credentials).toString("base64")}`, "Content-Type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ grant_type: "refresh_token", refresh_token: refreshToken }), cache: "no-store" });
+  if (!response.ok) throw new Error("Your Spotify connection has expired. Please reconnect.");
+  const refreshed = await response.json() as { access_token: string; refresh_token?: string; expires_in: number };
+  store.set("spotify_access_token", refreshed.access_token, sessionCookie(Math.min(refreshed.expires_in, remaining)));
+  if (refreshed.refresh_token) store.set("spotify_refresh_token", sealToken(refreshed.refresh_token), sessionCookie(remaining));
+  return refreshed.access_token;
 }
 
 export async function spotify<T>(path: string, init: RequestInit = {}): Promise<T> {
